@@ -162,23 +162,23 @@ jobs:
           gpg --homedir ./ -d --passphrase "${{ secrets.KEYSTORE_PASSPHRASE }}" --batch cromite.keystore.asc > cromite.keystore
           echo "::endgroup::"
 
-      - name: Build Cromite System WebView x64
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
+      # - name: Build Cromite System WebView x64
+      #   shell: bash
+      #   run: |
+      #     PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+      #     cd $WORKSPACE/chromium/src
 
-          echo "::group::-------- gn gen"
-          gn gen --args="target_os = \"android\" target_cpu = \"x64\" $(cat /home/lg/working_dir/cromite/build/cromite.gn_args) system_webview_package_name=\"com.android.webview\" skip_secondary_abi_for_cq = true enable_trybot_verification=false " out/x64_webview
-          echo "::endgroup::"
+      #     echo "::group::-------- gn gen"
+      #     gn gen --args="target_os = \"android\" target_cpu = \"x64\" $(cat /home/lg/working_dir/cromite/build/cromite.gn_args) system_webview_package_name=\"com.android.webview\" skip_secondary_abi_for_cq = true enable_trybot_verification=false " out/x64_webview
+      #     echo "::endgroup::"
 
-          echo "::group::-------- gn args"
-          gn args out/x64_webview/ --list --short
-          gn args out/x64_webview/ --list >out/x64_webview/gn_list
-          echo "::endgroup::"
+      #     echo "::group::-------- gn args"
+      #     gn args out/x64_webview/ --list --short
+      #     gn args out/x64_webview/ --list >out/x64_webview/gn_list
+      #     echo "::endgroup::"
 
-          ninja -C out/x64_webview system_webview_apk system_webview_shell
-          cp ../../cromite/build/RELEASE out/x64_webview
+      #     ninja -C out/x64_webview system_webview_apk system_webview_shell
+      #     cp ../../cromite/build/RELEASE out/x64_webview
 
       - name: Build Cromite System WebView arm64
         shell: bash
@@ -187,7 +187,7 @@ jobs:
           cd $WORKSPACE/chromium/src
 
           echo "::group::-------- gn gen"
-          gn gen --args="target_os = \"android\" target_cpu = \"arm64\" $(cat /home/lg/working_dir/cromite/build/cromite.gn_args) system_webview_package_name=\"com.android.webview\" skip_secondary_abi_for_cq = true enable_trybot_verification=false " out/arm64_webview
+          gn gen --args="target_os = \"android\" target_cpu = \"arm64\" $(cat /home/lg/working_dir/cromite/build/cromite.gn_args) system_webview_package_name=\"org.cromite.webview\" skip_secondary_abi_for_cq = true enable_trybot_verification=false " out/arm64_webview
           echo "::endgroup::"
 
           echo "::group::-------- gn args"
@@ -198,70 +198,70 @@ jobs:
           ninja -C out/arm64_webview system_webview_apk system_webview_shell
           cp ../../cromite/build/RELEASE out/arm64_webview
 
-      - name: Prepare Build Container for vanilla chromium
-        shell: bash
-        run: |
-          # set workspace paths
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
+      # - name: Prepare Build Container for vanilla chromium
+      #   shell: bash
+      #   run: |
+      #     # set workspace paths
+      #     PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+      #     cd $WORKSPACE/chromium/src
 
-          # checkout chromium commit
-          LAST_PATCH=$(git log --all --grep='Fix-chromium-vanilla.patch' --format="%H")
-          git checkout $LAST_PATCH
+      #     # checkout chromium commit
+      #     LAST_PATCH=$(git log --all --grep='Fix-chromium-vanilla.patch' --format="%H")
+      #     git checkout $LAST_PATCH
 
-      - name: Build Chromium Vanilla Android x64
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
+      # - name: Build Chromium Vanilla Android x64
+      #   shell: bash
+      #   run: |
+      #     PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+      #     cd $WORKSPACE/chromium/src
 
-          echo "::group::-------- gn gen"
-          gn gen --args="target_os = \"android\" $(cat /home/lg/working_dir/cromite/build/chromium.gn_args) target_cpu = \"x64\" " out/chr_x64
-          echo "::endgroup::"
+      #     echo "::group::-------- gn gen"
+      #     gn gen --args="target_os = \"android\" $(cat /home/lg/working_dir/cromite/build/chromium.gn_args) target_cpu = \"x64\" " out/chr_x64
+      #     echo "::endgroup::"
 
-          echo "::group::-------- gn args"
-          gn args out/chr_x64/ --list --short
-          gn args out/chr_x64/ --list >out/chr_x64/gn_list
-          echo "::endgroup::"
+      #     echo "::group::-------- gn args"
+      #     gn args out/chr_x64/ --list --short
+      #     gn args out/chr_x64/ --list >out/chr_x64/gn_list
+      #     echo "::endgroup::"
 
-          ninja -C out/chr_x64 chrome_public_apk
+      #     ninja -C out/chr_x64 chrome_public_apk
 
-          cp ../../cromite/build/RELEASE out/chr_x64
+      #     cp ../../cromite/build/RELEASE out/chr_x64
 
-      - name: Build Chromium Vanilla Android arm64
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
+      # - name: Build Chromium Vanilla Android arm64
+      #   shell: bash
+      #   run: |
+      #     PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+      #     cd $WORKSPACE/chromium/src
 
-          echo "::group::-------- gn gen"
-          gn gen --args="target_os = \"android\" $(cat /home/lg/working_dir/cromite/build/chromium.gn_args) target_cpu = \"arm64\" " out/chr_arm64
-          echo "::endgroup::"
+      #     echo "::group::-------- gn gen"
+      #     gn gen --args="target_os = \"android\" $(cat /home/lg/working_dir/cromite/build/chromium.gn_args) target_cpu = \"arm64\" " out/chr_arm64
+      #     echo "::endgroup::"
 
-          echo "::group::-------- gn args"
-          gn args out/chr_arm64/ --list --short
-          gn args out/chr_arm64/ --list >out/chr_arm64/gn_list
-          echo "::endgroup::"
+      #     echo "::group::-------- gn args"
+      #     gn args out/chr_arm64/ --list --short
+      #     gn args out/chr_arm64/ --list >out/chr_arm64/gn_list
+      #     echo "::endgroup::"
 
-          ninja -C out/chr_arm64 chrome_public_apk
+      #     ninja -C out/chr_arm64 chrome_public_apk
 
-          cp ../../cromite/build/RELEASE out/chr_arm64
+      #     cp ../../cromite/build/RELEASE out/chr_arm64
 
-      - name: Build Chromium Vanilla Android arm
-        shell: bash
-        run: |
-          PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
-          cd $WORKSPACE/chromium/src
+      # - name: Build Chromium Vanilla Android arm
+      #   shell: bash
+      #   run: |
+      #     PATH=$WORKSPACE/chromium/src/third_party/llvm-build/Release+Asserts/bin:$WORKSPACE/depot_tools/:/usr/local/go/bin:$WORKSPACE/mtool/bin:$PATH
+      #     cd $WORKSPACE/chromium/src
 
-          echo "::group::-------- gn gen"
-          gn gen --args="target_os = \"android\" $(cat /home/lg/working_dir/cromite/build/chromium.gn_args) target_cpu = \"arm\" " out/chr_arm
-          echo "::endgroup::"
+      #     echo "::group::-------- gn gen"
+      #     gn gen --args="target_os = \"android\" $(cat /home/lg/working_dir/cromite/build/chromium.gn_args) target_cpu = \"arm\" " out/chr_arm
+      #     echo "::endgroup::"
 
-          echo "::group::-------- gn args"
-          gn args out/chr_arm/ --list --short
-          gn args out/chr_arm/ --list >out/chr_arm/gn_list
-          echo "::endgroup::"
+      #     echo "::group::-------- gn args"
+      #     gn args out/chr_arm/ --list --short
+      #     gn args out/chr_arm/ --list >out/chr_arm/gn_list
+      #     echo "::endgroup::"
 
-          ninja -C out/chr_arm chrome_public_apk
+      #     ninja -C out/chr_arm chrome_public_apk
 
-          cp ../../cromite/build/RELEASE out/chr_arm
+      #     cp ../../cromite/build/RELEASE out/chr_arm
